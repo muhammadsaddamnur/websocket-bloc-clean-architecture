@@ -6,41 +6,21 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import '../bloc/price_bloc.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class PriceScreen extends StatefulWidget {
+  const PriceScreen({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<PriceScreen> createState() => _PriceScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  late StreamSubscription<InternetConnectionStatus> listener;
-
+class _PriceScreenState extends State<PriceScreen> {
   @override
   void initState() {
     Future.microtask(() async {
       final bloc = BlocProvider.of<PriceBloc>(context, listen: false);
-      listener = InternetConnectionChecker().onStatusChange.listen((status) {
-        switch (status) {
-          case InternetConnectionStatus.connected:
-            print('Data connection is available.');
-            bloc.add(const StreamPriceEvent('bitcoin'));
-            break;
-          case InternetConnectionStatus.disconnected:
-            print('You are disconnected from the internet.');
-            break;
-        }
-      });
+      bloc.add(const InitPriceEvent('bitcoin'));
     });
     super.initState();
   }

@@ -7,7 +7,16 @@ abstract class PriceEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class StreamPriceEvent extends PriceEvent{
+class InitPriceEvent extends PriceEvent {
+  final String symbol;
+
+  const InitPriceEvent(this.symbol);
+
+  @override
+  List<Object> get props => [symbol];
+}
+
+class StreamPriceEvent extends PriceEvent {
   final String symbol;
 
   const StreamPriceEvent(this.symbol);
@@ -16,8 +25,7 @@ class StreamPriceEvent extends PriceEvent{
   List<Object> get props => [symbol];
 }
 
-
-class _updateState extends PriceEvent{
+class _updateState extends PriceEvent {
   final double value;
 
   const _updateState(this.value);
