@@ -1,33 +1,30 @@
 import 'dart:async';
 import 'dart:io' show WebSocket;
-import 'package:coinapp/features/live_price/data/models/price_model.dart';
-import 'package:coinapp/features/live_price/domain/entities/price.dart';
-
 import '../../../../core/errors/exceptions.dart';
+import '../../domain/entities/mini_ticker.dart';
+import '../models/mini_ticker_model.dart';
 
-abstract class PriceDatasource {
-  Future<Stream<Price>> streamPrice(String symbol);
+abstract class MiniTickerDatasource {
+  Future<Stream<MiniTicker>> streamMiniTicker();
 }
 
-class PriceDatasourceImpl implements PriceDatasource {
+class MiniTickerDatastoreImpl extends MiniTickerDatasource {
   WebSocket? _webSocket;
-  StreamController<Price>? _streamController;
+  StreamController<MiniTicker>? _streamController;
 
   @override
-  Future<Stream<Price>> streamPrice(String symbol) async {
+  Future<Stream<MiniTicker>> streamMiniTicker() async {
     _webSocket?.close();
     _streamController?.close();
-    _streamController = StreamController<Price>();
-
+    _streamController = StreamController<MiniTicker>();
     try {
-      _webSocket =
-          await WebSocket.connect('wss://ws.coincap.io/prices?assets=$symbol');
+      _webSocket = await WebSocket.connect(
+          'wss://stream.binance.com:9443/ws/!miniTicker@arr');
       if (_webSocket!.readyState == WebSocket.open) {
         _webSocket!.listen(
           (data) {
-            print(data);
-            final priceModel = PriceModel.fromJson(symbol, data);
-            _streamController!.add(priceModel);
+            final tradeModel = MiniTickerModel.fromJson(data);
+            _streamController!.add(tradeModel);
           },
           onDone: () => print('[+]Done :)'),
           onError: (err) => print('[!]Error -- ${err.toString()}'),
@@ -41,7 +38,6 @@ class PriceDatasourceImpl implements PriceDatasource {
       _streamController!.close();
       throw ServerException();
     }
-
     return _streamController!.stream;
   }
 }
